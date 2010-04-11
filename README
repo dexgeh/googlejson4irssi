@@ -1,0 +1,4 @@
+
+1) Put googlejson.pl in ~/.irssi/scripts/
+2) Load with /load googlejson.pl
+3) Use with /gsearch something 
