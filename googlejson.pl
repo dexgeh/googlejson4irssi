@@ -1,5 +1,3 @@
-
-#credits: http://code.google.com/apis/ajaxsearch/documentation/#fonje_snippets
  
 use strict;
 
@@ -10,14 +8,17 @@ $VERSION = '1.00';
 
 use LWP::UserAgent;
 use JSON;
+use Data::Dumper;
 
 %IRSSI = (
     authors     => 'dexgeh',
     contact     => 'dexgeh@gmail.com',
     name        => 'gData Google search',
-    description => 'This script allow you to search through google using its Json API',
+    description => 'This script allow ow you to search through google using its API',
     license     => 'Public Domain',
 );
+
+my $lastSearch;
 
 sub cmd_google {
     my ($data, $server, $witem) = @_;
@@ -29,6 +30,8 @@ sub cmd_google {
     my $body = $ua->get($query);
     my $json = from_json($body->decoded_content);
     my $i = 0;
+    $lastSearch = $json->{responseData}->{results};
+
     foreach my $result (@{$json->{responseData}->{results}}){
         $i++;
         Irssi::active_win()->print($i.". " . $result->{titleNoFormatting} . "(" . $result->{url} . ")");
@@ -38,4 +41,18 @@ sub cmd_google {
     }
 }
 
+sub say_google_result {
+    my ($data, $server, $witem) = @_;
+    my $idx = int($data);
+    #Irssi::active_win()->print($idx);
+    my $i = 0;
+    foreach my $result (@{$lastSearch}) {
+        $i++;
+        if ($i == $idx) {
+            $witem->command("/SAY " . $result->{titleNoFormatting} . "(" . $result->{url} . ")");
+        }
+    }
+}
+
 Irssi::command_bind('gsearch', 'cmd_google');
+Irssi::command_bind('gsay','say_google_result');
